@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Questionnaire</title>
+    <link rel="stylesheet" href="color.css">
+</head>
+<body>
+    <div class="container">
+        <h1>How are you feeling today?</h1>
+
+        <!-- Questionnaire Form -->
+        <form id="mood-form">
+            <div class="question">
+                <label for="mood">1. How are you feeling right now?</label>
+                <select id="mood" name="mood" required>
+                    <option value="happy">Happy</option>
+                    <option value="sad">Sad</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="anxious">Anxious</option>
+                    <option value="angry">Angry</option>
+                </select>
+            </div>
+
+            <div class="question">
+                <label for="stress">2. On a scale of 1 to 5, how stressed do you feel?</label>
+                <input type="number" id="stress" name="stress" min="1" max="5" required>
+            </div>
+
+            <div class="question">
+                <label for="energy">3. Do you feel more energized or drained today?</label>
+                <select id="energy" name="energy" required>
+                    <option value="energized">Energized</option>
+                    <option value="drained">Drained</option>
+                    <option value="neutral">Neutral</option>
+                </select>
+            </div>
+
+            <button type="submit" id="submit-btn">Submit</button>
+        </form>
+
+        <div id="response-message" class="response-message"></div>
+    </div>
+
+    <script src="analysis.js"></script>
+</body>
+</html>

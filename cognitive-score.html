@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognitive Load Restored</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="score-container">
+        <div class="method-icon"></div>
+        <h1>Cognitive Load Restored</h1>
+        
+        <div class="circle-progress">
+            <svg class="progress-ring" width="200" height="200">
+                <circle 
+                    class="progress-ring-circle"
+                    stroke-width="8"
+                    stroke-linecap="round"
+                    fill="transparent"
+                    r="90"
+                    cx="100"
+                    cy="100"/>
+            </svg>
+            <div class="progress-label">0%</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div id="timeSpent">0:00</div>
+                <div class="stat-label">Time Spent</div>
+            </div>
+            <div class="stat-item">
+                <div id="effectiveness">Good</div>
+                <div class="stat-label">Effectiveness</div>
+            </div>
+        </div>
+
+        <button class="return-btn" onclick="window.location.href='dashboard.html'">Return to Dashboard</button>
+    </div>
+
+    <script src="report.js"></script>
+    <script>
+        window.onload = function() {
+            const methodType = sessionStorage.getItem('methodType') || 'artTherapy';
+            const timeSpent = parseInt(sessionStorage.getItem('timeSpent')) || 180;
+            const answers = JSON.parse(sessionStorage.getItem('answers')) || {
+                emotionalState: 4,
+                focusLevel: 4,
+                enjoyment: 5,
+                completion: 5
+            };
+
+            let score;
+            switch(methodType) {
+                case 'artTherapy':
+                    score = calculateArtTherapyScore(answers, timeSpent);
+                    document.querySelector('.method-icon').textContent = '🎨';
+                    break;
+                case 'meditation':
+                    score = calculateMeditationScore(2, timeSpent);
+                    document.querySelector('.method-icon').textContent = '🧘';
+                    break;
+                case 'greenSerenity':
+                    score = calculateGreenScore(0.9, timeSpent);
+                    document.querySelector('.method-icon').textContent = '🌿';
+                    break;
+            }
+
+            setProgress(score);
+            document.getElementById('timeSpent').textContent = formatTime(timeSpent);
+            document.getElementById('effectiveness').textContent = 
+                score >= 80 ? 'Excellent' : 
+                score >= 60 ? 'Good' : 
+                score >= 40 ? 'Fair' : 'Keep Trying';
+        }
+
+        function setProgress(percent) {
+            const circle = document.querySelector('.progress-ring-circle');
+            const radius = circle.r.baseVal.value;
+            const circumference = radius * 2 * Math.PI;
+            
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            const offset = circumference - (percent / 100 * circumference);
+            circle.style.strokeDashoffset = offset;
+            
+            document.querySelector('.progress-label').textContent = `${percent}%`;
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto Mono', monospace;
+            background-color: #f5e9f7;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        #question {
+            font-size: 1.2em;
+            background-color: #ffe6ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .chat-window {
+            border: 2px solid #81379e;
+            background: white;
+            border-radius: 8px;
+            height: 400px;
+            overflow-y: scroll;
+            padding: 10px;
+        }
+        .message {
+            margin: 5px 0;
+        }
+        .message.user {
+            text-align: right;
+            color: #81379e;
+        }
+        .message.other {
+            text-align: left;
+            color: #4a0e4e;
+        }
+        .input-area {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #81379e;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #81379e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #9a4cbf;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Community Chat</h1>
+        <div id="question"></div>
+        <div class="chat-window" id="chat-window"></div>
+        <div class="input-area">
+            <input type="text" id="message-input" placeholder="Type your message">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            "What's one thing you're grateful for today?",
+            "How do you feel about your day so far?",
+            "What’s a recent moment that made you smile?",
+            "Share a kind thought or affirmation you like.",
+            "Describe a moment of calmness or peace you experienced."
+        ];
+
+        // Display random question
+        document.getElementById('question').textContent = questions[Math.floor(Math.random() * questions.length)];
+
+        // Simulated user data and encrypted names
+        const users = [
+            { id: 1, name: "User1" },
+            { id: 2, name: "User2" },
+        ];
+
+        // Simulate random person pairing
+        const currentUser = "You";
+        const pairedUser = users[Math.floor(Math.random() * users.length)].name;
+
+        // Chat functionality
+        const chatWindow = document.getElementById('chat-window');
+        function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+
+            if (message) {
+                // Add user's message
+                appendMessage(currentUser, message, 'user');
+
+                // Simulate response from the paired user
+                setTimeout(() => {
+                    const response = "Thanks for sharing!";
+                    appendMessage(pairedUser, response, 'other');
+                }, 1000);
+            }
+
+            messageInput.value = "";
+        }
+
+        function appendMessage(sender, message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', type);
+            messageDiv.textContent = `${sender}: ${message}`;
+            chatWindow.appendChild(messageDiv);
+
+            // Scroll to bottom
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+    </script>
+</body>
+</html>

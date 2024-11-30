@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detection with Webcam</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        #video {
+            width: 640px;
+            height: 480px;
+            border: 2px solid #ccc;
+        }
+
+        #emotion {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .emotion-box {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Emotion Detection</h1>
+        <video id="video" autoplay muted></video>
+        <div id="emotion" class="emotion-box">Loading...</div>
+    </div>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api.js"></script>
+    <script>
+        // Initialize video and canvas elements
+        const video = document.getElementById('video');
+        const emotionBox = document.getElementById('emotion');
+
+        // Load the models from a relative 'models' folder
+        async function loadModels() {
+            await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
+            await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+            await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+            await faceapi.nets.ageGenderNet.loadFromUri('/models');
+            await faceapi.nets.emotionNet.loadFromUri('/models');
+            startWebcam();
+        }
+
+        // Access webcam and stream to video element
+        async function startWebcam() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error('Error accessing webcam: ', err);
+                emotionBox.innerText = 'Unable to access webcam';
+            }
+        }
+
+        // Detect emotions using face-api.js
+        async function detectEmotion() {
+            const detections = await faceapi.detectSingleFace(video)
+                .withFaceLandmarks()
+                .withFaceDescriptors()
+                .withAgeAndGender()
+                .withEmotion();
+            
+            if (detections) {
+                const emotions = detections.emotions;
+                const dominantEmotion = getDominantEmotion(emotions);
+                emotionBox.innerHTML = `Emotion: ${dominantEmotion}`;
+            } else {
+                emotionBox.innerText = 'No face detected';
+            }
+        }
+
+        // Get dominant emotion
+        function getDominantEmotion(emotions) {
+            const emotionsArray = Object.entries(emotions);
+            emotionsArray.sort((a, b) => b[1] - a[1]);
+            return emotionsArray[0][0];
+        }
+
+        // Start emotion detection loop
+        function startDetectionLoop() {
+            detectEmotion();
+            requestAnimationFrame(startDetectionLoop);
+        }
+
+        // Load models and start the detection loop
+        loadModels().then(() => {
+            startDetectionLoop();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Psychological Questionnaire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto Mono', monospace;
+            background-color: #f0f4f8;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .game-container {
+            display: flex;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            max-width: 700px;
+            width: 90%;
+            transition: all 0.3s ease;
+        }
+        .mood-assessment {
+            flex: 1;
+            padding: 3rem;
+            background-color: #F5F3FF;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            gap: 1.5rem;
+        }
+        .question {
+            color: #4a0e4e;
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .option {
+            background-color: #81379e;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .option:hover {
+            background-color: #9a4cbf;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .progress {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+            gap: 0.5rem;
+        }
+        .progress-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #81379e;
+            border-radius: 50%;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+        .progress-dot.active {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="mood-assessment">
+            <div id="questionContainer">
+                <div class="question" id="currentQuestion"></div>
+                <div class="options" id="options"></div>
+            </div>
+            <div class="progress" id="progressIndicator"></div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            "Do you feel like you don't get as much pleasure out of things as others seem to?",
+            "Do you think plenty of people are out to get you?",
+            "Would people describe you as reckless?",
+            "Do you feel like you act totally on impulse?",
+            "Do you often have ideas that are too unusual to explain to anyone?",
+            "Do you lose track of conversations because other things catch your attention?",
+            "Do you avoid risky situations?",
+            "Do people tell you that you're a \"cold fish\" when it comes to your emotions?",
+            "Do you change what you do depending on what others want?",
+            "Do you prefer not to get too close to people?",
+            "Do you often get into physical fights?",
+            "Do you dread being without someone to love you?",
+            "Do you think being rude and unfriendly is just a part of who you are?",
+            "Do you do things to make sure people notice you?",
+            "Do you usually do what others think you should do?",
+            "Do you usually act on impulse without thinking about what might happen as a result?",
+            "Even though you know better, do you find it hard to stop making rash decisions?",
+            "Do your emotions sometimes change for no good reason?",
+            "Do you really not care if you make other people suffer?",
+            "Do you keep to yourself?",
+            "Do you often say things that others find odd or strange?",
+            "Do you always do things on the spur of the moment?",
+            "Does nothing seem to interest you very much?",
+            "Do other people seem to think your behavior is weird?",
+            "Have people told you that you think about things in a really strange way?",
+            "Do you almost never enjoy life?",
+            "Do you often feel like nothing you do really matters?",
+            "Do you snap at people when they do little things that irritate you?",
+            "Do you find it hard to concentrate on anything?",
+            "Would you describe yourself as an energetic person?",
+            "Do others see you as irresponsible?",
+            "Do you think you can be mean when you need to be?",
+            "Do your thoughts often go off in odd or unusual directions?",
+            "Have you been told that you spend too much time making sure things are exactly in place?",
+            "Do you avoid risky sports and activities?"
+        ];
+
+        const options = [
+            "Very/Often False",
+            "Sometimes/Somewhat False", 
+            "Sometimes/Somewhat True", 
+            "Very/Often True"
+        ];
+
+        const optionScores = [0, 1, 2, 3];
+        let answeredQuestions = [];
+        let userScores = [];
+        const TOTAL_QUESTIONS = 4;
+
+        function getRandomQuestions() {
+            const shuffled = [...questions].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, TOTAL_QUESTIONS);
+        }
+
+        function renderProgressIndicator() {
+            const progressEl = document.getElementById('progressIndicator');
+            progressEl.innerHTML = '';
+            for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+                const dot = document.createElement('div');
+                dot.className = `progress-dot ${i < answeredQuestions.length ? 'active' : ''}`;
+                progressEl.appendChild(dot);
+            }
+        }
+
+        function renderQuestion(question) {
+            const questionEl = document.getElementById('currentQuestion');
+            const optionsEl = document.getElementById('options');
+            
+            questionEl.textContent = question;
+            optionsEl.innerHTML = '';
+
+            options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = 'option';
+                button.addEventListener('click', () => handleAnswer(question, optionScores[index]));
+                optionsEl.appendChild(button);
+            });
+
+            renderProgressIndicator();
+        }
+
+        function handleAnswer(question, score) {
+            answeredQuestions.push(question);
+            userScores.push(score);
+
+            if (answeredQuestions.length < TOTAL_QUESTIONS) {
+                const remainingQuestions = getRandomQuestions().filter(q => !answeredQuestions.includes(q));
+                renderQuestion(remainingQuestions[0]);
+            } else {
+                window.location.href = 'questionnaire.html';
+                console.log('Scores:', userScores); // You can handle scores here
+            }
+        }
+
+        // Start the questionnaire
+        renderQuestion(getRandomQuestions()[0]);
+    </script>
+</body>
+</html>
